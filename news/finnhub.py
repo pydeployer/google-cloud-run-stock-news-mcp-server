@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import httpx
 
@@ -25,9 +25,7 @@ async def fetch_news(ticker: str) -> list[RawArticle]:
     since per-article sentiment is not available on the free tier."""
     api_key = os.environ["FINNHUB_API_KEY"]
     today = datetime.now(tz=timezone.utc)
-    from_date = today.replace(day=today.day - 7).strftime("%Y-%m-%d") if today.day > 7 else (
-        today.replace(month=today.month - 1, day=today.day + 23).strftime("%Y-%m-%d")
-    )
+    from_date = (today - timedelta(days=7)).strftime("%Y-%m-%d")
     to_date = today.strftime("%Y-%m-%d")
     async with httpx.AsyncClient(timeout=15) as client:
         r = await client.get(f"{_FH_BASE}/company-news", params={
@@ -47,7 +45,7 @@ async def fetch_news(ticker: str) -> list[RawArticle]:
             published_at=_unix_to_iso(item.get("datetime", 0)),
             url=item.get("url", ""),
             summary=item.get("summary", ""),
-            sentiment="neutral",  # free tier has no per-article sentiment
+            sentiment="neutral",
         )
         for item in items
     ]
