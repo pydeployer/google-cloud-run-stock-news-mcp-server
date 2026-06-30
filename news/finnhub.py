@@ -37,6 +37,9 @@ async def fetch_news(ticker: str) -> list[RawArticle]:
             "token": api_key,
         })
         r.raise_for_status()
+    items = r.json()
+    if not isinstance(items, list):
+        return []
     return [
         RawArticle(
             title=item.get("headline", ""),
@@ -46,6 +49,5 @@ async def fetch_news(ticker: str) -> list[RawArticle]:
             summary=item.get("summary", ""),
             sentiment="neutral",  # free tier has no per-article sentiment
         )
-        for item in r.json()
-        if isinstance(r.json(), list)
+        for item in items
     ]
