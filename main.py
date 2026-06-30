@@ -49,7 +49,10 @@ async def get_stock_news(query: str) -> dict:
     await asyncio.gather(_fetch_av(), _fetch_fh())
 
     if not av_articles and not fh_articles:
-        return {"error": "Both news sources returned no results", "warnings": warnings}
+        msg = "Both news sources unavailable"
+        if warnings:
+            msg += ": " + "; ".join(warnings)
+        raise ValueError(msg)
 
     news = merge(av_articles, fh_articles, ticker)
     result: dict = {"ticker": ticker, "news": [item.to_dict() for item in news]}
