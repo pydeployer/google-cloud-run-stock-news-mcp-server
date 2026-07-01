@@ -34,7 +34,11 @@ async def symbol_search(query: str) -> str | None:
             "apikey": api_key,
         })
         r.raise_for_status()
-    matches = r.json().get("bestMatches", [])
+    data = r.json()
+    for error_key in ("Note", "Information", "Error Message"):
+        if error_key in data:
+            raise RuntimeError(f"Alpha Vantage API error: {data[error_key]}")
+    matches = data.get("bestMatches", [])
     if not matches:
         return None
     return matches[0]["1. symbol"]
@@ -47,9 +51,15 @@ async def fetch_news(ticker: str) -> list[RawArticle]:
         r = await client.get(_AV_BASE, params={
             "function": "NEWS_SENTIMENT",
             "tickers": ticker,
+            "sort": "LATEST",
+            "limit": "50",
             "apikey": api_key,
         })
         r.raise_for_status()
+    data = r.json()
+    for error_key in ("Note", "Information", "Error Message"):
+        if error_key in data:
+            raise RuntimeError(f"Alpha Vantage API error: {data[error_key]}")
     return [
         RawArticle(
             title=item.get("title", ""),
@@ -59,5 +69,5 @@ async def fetch_news(ticker: str) -> list[RawArticle]:
             summary=item.get("summary", ""),
             sentiment=map_av_sentiment(item.get("overall_sentiment_label", "")),
         )
-        for item in r.json().get("feed", [])
+        for item in data.get("feed", [])
     ]
