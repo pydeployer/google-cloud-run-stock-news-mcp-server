@@ -2,7 +2,44 @@
 
 A FastMCP server that fetches the latest stock news and sentiment for a given ticker symbol or company name, deployed on Google Cloud Run. News is sourced from [Alpha Vantage](https://www.alphavantage.co) and [Finnhub](https://finnhub.io) free-tier APIs.
 
+## Prerequisites
+
+- Free API keys from [Alpha Vantage](https://www.alphavantage.co/support/#api-key) and [Finnhub](https://finnhub.io/register)
+- Python 3.13
+- [uv](https://docs.astral.sh/uv/)
+
+> **Note:** Alpha Vantage free tier allows 25 requests/day with a 1 request/second burst limit. Ticker queries (e.g. `AAPL`) use **1** AV call; company-name queries (e.g. `Apple`) use **2** (symbol search + news). A 1.2 s gap is automatically inserted between the two calls for company-name queries.
+
+## Local Development
+
+```bash
+uv sync
+
+ALPHAVANTAGE_API_KEY=your_key \
+FINNHUB_API_KEY=your_key \
+uv run python main.py
+```
+
+The MCP server starts on `http://0.0.0.0:8080`.
+
+**Transport:** `main.py` defaults to `transport="http"` (streamable HTTP, POST `/mcp`). Change to `transport="sse"` if your MCP client expects SSE (GET `/sse`).
+
+## pytest
+
+```bash
+# Unit tests (no API keys required)
+uv run pytest tests/test_aggregator.py tests/test_sentiment.py -v
+
+# Integration tests (hits real APIs)
+ALPHAVANTAGE_API_KEY=your_key \
+FINNHUB_API_KEY=your_key \
+RUN_INTEGRATION_TESTS=1 \
+uv run pytest tests/test_integration.py -v
+```
+
 ## Tool
+
+Tested with [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector) — connect it to `http://localhost:8080/mcp` (streamable HTTP) or `http://localhost:8080/sse` (SSE) depending on your transport setting.
 
 ### `get_stock_news(query: str)`
 
@@ -128,40 +165,7 @@ Sentiment is derived from Alpha Vantage's `overall_sentiment_label`. Finnhub fre
 
 </details>
 
-## Prerequisites
 
-- Free API keys from [Alpha Vantage](https://www.alphavantage.co/support/#api-key) and [Finnhub](https://finnhub.io/register)
-- Python 3.13
-- [uv](https://docs.astral.sh/uv/)
-
-> **Note:** Alpha Vantage free tier allows 25 requests/day with a 1 request/second burst limit. Ticker queries (e.g. `AAPL`) use **1** AV call; company-name queries (e.g. `Apple`) use **2** (symbol search + news). A 1.2 s gap is automatically inserted between the two calls for company-name queries.
-
-## Local Development
-
-```bash
-uv sync
-
-ALPHAVANTAGE_API_KEY=your_key \
-FINNHUB_API_KEY=your_key \
-uv run python main.py
-```
-
-The MCP server starts on `http://0.0.0.0:8080`.
-
-**Transport:** `main.py` defaults to `transport="http"` (streamable HTTP, POST `/mcp`). Change to `transport="sse"` if your MCP client expects SSE (GET `/sse`).
-
-## Running Tests
-
-```bash
-# Unit tests (no API keys required)
-uv run pytest tests/test_aggregator.py tests/test_sentiment.py -v
-
-# Integration tests (hits real APIs)
-ALPHAVANTAGE_API_KEY=your_key \
-FINNHUB_API_KEY=your_key \
-RUN_INTEGRATION_TESTS=1 \
-uv run pytest tests/test_integration.py -v
-```
 
 ## Docker
 
