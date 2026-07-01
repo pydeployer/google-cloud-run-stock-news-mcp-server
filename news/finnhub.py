@@ -46,6 +46,7 @@ async def fetch_news(ticker: str) -> list[RawArticle]:
             url=item.get("url", ""),
             summary=item.get("summary", ""),
             sentiment="neutral",
+            source_api="finnhub",
         )
         for item in items
     ]

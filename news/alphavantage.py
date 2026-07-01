@@ -68,6 +68,7 @@ async def fetch_news(ticker: str) -> list[RawArticle]:
             url=item.get("url", ""),
             summary=item.get("summary", ""),
             sentiment=map_av_sentiment(item.get("overall_sentiment_label", "")),
+            source_api="alphavantage",
         )
         for item in data.get("feed", [])
     ]

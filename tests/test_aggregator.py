@@ -2,7 +2,7 @@ from news.models import RawArticle
 from news.aggregator import merge
 
 
-def _article(url: str, published_at: str, sentiment: str = "neutral") -> RawArticle:
+def _article(url: str, published_at: str, sentiment: str = "neutral", source_api: str = "alphavantage") -> RawArticle:
     return RawArticle(
         title=f"Title {url}",
         source="TestSource",
@@ -10,6 +10,7 @@ def _article(url: str, published_at: str, sentiment: str = "neutral") -> RawArti
         url=url,
         summary="A summary.",
         sentiment=sentiment,
+        source_api=source_api,
     )
 
 
@@ -53,7 +54,7 @@ def test_merge_empty_sources_returns_empty():
 
 
 def test_merge_returns_newsitem_with_all_fields():
-    a = _article("http://example.com/1", "2024-01-01T00:00:00", sentiment="positive")
+    a = _article("http://example.com/1", "2024-01-01T00:00:00", sentiment="positive", source_api="alphavantage")
     result = merge([a], [], ticker="AAPL")
     item = result[0]
     assert item.title == "Title http://example.com/1"
@@ -62,3 +63,12 @@ def test_merge_returns_newsitem_with_all_fields():
     assert item.summary == "A summary."
     assert item.sentiment == "positive"
     assert item.ticker == "AAPL"
+    assert item.source_api == "alphavantage"
+
+
+def test_merge_preserves_source_api():
+    av = _article("http://example.com/1", "2024-01-02T00:00:00", source_api="alphavantage")
+    fh = _article("http://example.com/2", "2024-01-01T00:00:00", source_api="finnhub")
+    result = merge([av], [fh], ticker="AAPL")
+    assert result[0].source_api == "alphavantage"
+    assert result[1].source_api == "finnhub"

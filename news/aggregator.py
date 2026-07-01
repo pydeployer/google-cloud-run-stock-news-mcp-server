@@ -35,6 +35,7 @@ def merge(
             summary=a.summary,
             sentiment=a.sentiment,
             ticker=ticker,
+            source_api=a.source_api,
         )
         for a in combined[:limit]
     ]

@@ -9,6 +9,7 @@ class RawArticle:
     url: str
     summary: str
     sentiment: str  # "positive" | "negative" | "neutral"
+    source_api: str  # "alphavantage" | "finnhub"
 
 
 @dataclass
@@ -20,6 +21,7 @@ class NewsItem:
     summary: str
     sentiment: str
     ticker: str
+    source_api: str  # "alphavantage" | "finnhub"
 
     def to_dict(self) -> dict:
         return asdict(self)
