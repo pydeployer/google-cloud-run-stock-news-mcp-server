@@ -78,8 +78,4 @@ gcloud run deploy stock-news-mcp \
   --allow-unauthenticated
 ```
 
-## Alpha Vantage Free-Tier Limits
-
-- 25 requests/day, 1 request/second burst
-- Ticker queries (e.g. `AAPL`) use **1** AV call; company-name queries (e.g. `Apple`) use **2** (symbol search + news)
-- A 1.2 s gap is automatically inserted between the two calls for company-name queries
+> **Note:** Alpha Vantage free tier allows 25 requests/day with a 1 request/second burst limit. Ticker queries (e.g. `AAPL`) use **1** AV call; company-name queries (e.g. `Apple`) use **2** (symbol search + news). A 1.2 s gap is automatically inserted between the two calls for company-name queries.
