@@ -1,5 +1,6 @@
 import asyncio
 import os
+import re
 
 from fastmcp import FastMCP
 
@@ -7,6 +8,8 @@ from news.aggregator import merge
 from news.alphavantage import fetch_news as av_fetch_news
 from news.alphavantage import symbol_search
 from news.finnhub import fetch_news as fh_fetch_news
+
+_TICKER_RE = re.compile(r"^[A-Z]{1,5}$")
 
 for _key in ("ALPHAVANTAGE_API_KEY", "FINNHUB_API_KEY"):
     if not os.environ.get(_key):
@@ -25,9 +28,15 @@ async def get_stock_news(query: str) -> dict:
     Returns:
         A dict with 'ticker', 'news' (list of articles), and optional 'warnings'.
     """
-    ticker = await symbol_search(query)
-    if not ticker:
-        return {"error": f"No ticker found for query: {query}"}
+    # Skip SYMBOL_SEARCH if query is already a ticker (saves one AV API call)
+    if _TICKER_RE.match(query):
+        ticker = query
+    else:
+        ticker = await symbol_search(query)
+        if not ticker:
+            return {"error": f"No ticker found for query: {query}"}
+        # Respect AV free-tier 1 req/sec burst limit between the two AV calls
+        await asyncio.sleep(1.2)
 
     av_articles, fh_articles = [], []
     warnings: list[str] = []
