@@ -17,11 +17,13 @@ def merge(
     av_articles: list[RawArticle],
     fh_articles: list[RawArticle],
     ticker: str,
-    limit: int = 10,
+    per_source: int = 5,
 ) -> list[NewsItem]:
+    # Cap each source independently before merging
+    candidates = av_articles[:per_source] + fh_articles[:per_source]
     seen: set[str] = set()
     combined: list[RawArticle] = []
-    for article in av_articles + fh_articles:
+    for article in candidates:
         if article.url and article.url not in seen:
             seen.add(article.url)
             combined.append(article)
@@ -37,5 +39,5 @@ def merge(
             ticker=ticker,
             source_api=a.source_api,
         )
-        for a in combined[:limit]
+        for a in combined
     ]

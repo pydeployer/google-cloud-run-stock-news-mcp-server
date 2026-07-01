@@ -31,15 +31,25 @@ def test_merge_sorts_by_date_descending():
     assert result[2].published_at == "2024-01-01T00:00:00"
 
 
-def test_merge_caps_at_default_limit():
-    articles = [_article(f"http://example.com/{i}", "2024-01-01T00:00:00") for i in range(15)]
-    result = merge(articles, [], ticker="AAPL")
+def test_merge_caps_each_source_at_5():
+    av = [_article(f"http://av.com/{i}", "2024-01-01T00:00:00") for i in range(10)]
+    fh = [_article(f"http://fh.com/{i}", "2024-01-01T00:00:00", source_api="finnhub") for i in range(10)]
+    result = merge(av, fh, ticker="AAPL")
     assert len(result) == 10
+    assert sum(1 for r in result if r.source_api == "alphavantage") == 5
+    assert sum(1 for r in result if r.source_api == "finnhub") == 5
 
 
-def test_merge_respects_custom_limit():
-    articles = [_article(f"http://example.com/{i}", "2024-01-01T00:00:00") for i in range(5)]
-    result = merge(articles, [], ticker="AAPL", limit=3)
+def test_merge_fewer_than_10_kept_as_is():
+    av = [_article(f"http://av.com/{i}", "2024-01-01T00:00:00") for i in range(3)]
+    fh = [_article(f"http://fh.com/{i}", "2024-01-01T00:00:00", source_api="finnhub") for i in range(2)]
+    result = merge(av, fh, ticker="AAPL")
+    assert len(result) == 5
+
+
+def test_merge_respects_custom_per_source():
+    av = [_article(f"http://av.com/{i}", "2024-01-01T00:00:00") for i in range(10)]
+    result = merge(av, [], ticker="AAPL", per_source=3)
     assert len(result) == 3
 
 
