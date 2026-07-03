@@ -5,7 +5,7 @@ A FastMCP server that fetches the latest stock news and sentiment for a given ti
 ## Prerequisites
 
 - Free API keys from [Alpha Vantage](https://www.alphavantage.co/support/#api-key) and [Finnhub](https://finnhub.io/register)
-- Python 3.13
+- Python 3.14
 - [uv](https://docs.astral.sh/uv/)
 
 > **Note:** Alpha Vantage free tier allows 25 requests/day with a 1 request/second burst limit. Ticker queries (e.g. `AAPL`) use **1** AV call; company-name queries (e.g. `Apple`) use **2** (symbol search + news). A 1.2 s gap is automatically inserted between the two calls for company-name queries.

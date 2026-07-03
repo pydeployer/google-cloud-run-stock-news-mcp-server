@@ -21,7 +21,7 @@ tests/
   test_aggregator.py  # unit tests for merge logic
   test_sentiment.py   # unit tests for sentiment mapping
   test_integration.py # real-API tests (set RUN_INTEGRATION_TESTS=1)
-Dockerfile            # Cloud Run container (python:3.13-slim + uv)
+Dockerfile            # Cloud Run container (python:3.14-slim + uv)
 ```
 
 **Tool:** `get_stock_news(query: str)` — accepts a ticker (`AAPL`) or company name (`Apple`). Returns up to 10 articles merged from both sources, each with `title`, `source`, `published_at`, `url`, `summary`, `sentiment` (`positive|negative|neutral`), `ticker`, and `source_api` (`alphavantage|finnhub`).
@@ -42,7 +42,7 @@ Dockerfile            # Cloud Run container (python:3.13-slim + uv)
 
 ## Development Environment
 
-- **Python**: 3.13 (pinned via `.python-version`)
+- **Python**: 3.14 (pinned via `.python-version`)
 - **Package manager**: `uv` — use `uv` for all dependency and virtualenv operations
 
 ```bash
