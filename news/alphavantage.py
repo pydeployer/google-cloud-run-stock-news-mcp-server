@@ -41,7 +41,19 @@ async def symbol_search(query: str) -> str | None:
     matches = data.get("bestMatches", [])
     if not matches:
         return None
-    return matches[0]["1. symbol"]
+    # Narrow to US equities; fall back to all matches if none qualify
+    candidates = [
+        m for m in matches
+        if m.get("4. region") == "United States" and m.get("3. type") == "Equity"
+    ] or matches
+    # Among candidates whose name starts with the query, prefer the shortest name.
+    # This resolves ambiguity like "Apple Inc" (AAPL) vs "Apple Hospitality REIT Inc"
+    # (APLE), both of which AV returns for "Apple" but with APLE ranked higher by
+    # its match-score algorithm.
+    query_lower = query.lower()
+    name_match = [m for m in candidates if m.get("2. name", "").lower().startswith(query_lower)]
+    pool = name_match if name_match else candidates
+    return min(pool, key=lambda m: len(m.get("2. name", "")))["1. symbol"]
 
 
 async def fetch_news(ticker: str) -> list[RawArticle]:

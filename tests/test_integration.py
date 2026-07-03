@@ -15,6 +15,13 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+@pytest.fixture(autouse=True)
+async def av_rate_limit_pause():
+    """Enforce AV free-tier 1 req/sec burst limit between tests."""
+    yield
+    await asyncio.sleep(1.5)
+
+
 async def test_symbol_search_resolves_company_name():
     ticker = await symbol_search("Apple")
     assert ticker == "AAPL"
@@ -40,6 +47,8 @@ async def test_fh_fetch_news_returns_list():
 async def test_full_pipeline_returns_top_10():
     ticker = await symbol_search("Apple")
     assert ticker
+    # Mirror main.py: respect AV burst limit between SYMBOL_SEARCH and NEWS_SENTIMENT
+    await asyncio.sleep(1.2)
     av_articles, fh_articles = await asyncio.gather(
         av_fetch_news(ticker),
         fh_fetch_news(ticker),
