@@ -3,6 +3,8 @@ import os
 import re
 
 from fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from news.aggregator import merge
 from news.alphavantage import fetch_news as av_fetch_news
@@ -16,6 +18,11 @@ for _key in ("ALPHAVANTAGE_API_KEY", "FINNHUB_API_KEY"):
         raise RuntimeError(f"Missing required environment variable: {_key}")
 
 mcp = FastMCP("stock-news")
+
+
+@mcp.custom_route("/health/", methods=["GET"])
+async def health(request: Request) -> JSONResponse:
+    return JSONResponse({"status": "ok"})
 
 
 @mcp.tool
