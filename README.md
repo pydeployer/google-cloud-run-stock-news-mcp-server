@@ -170,19 +170,19 @@ Sentiment is derived from Alpha Vantage's `overall_sentiment_label`. Finnhub fre
 ## Docker
 
 ```bash
-docker build -t stock-news-mcp .
+$ docker build -t stock-news-mcp-server .
 
-docker run --rm \
+$ docker run -it --rm \
   -e ALPHAVANTAGE_API_KEY=your_key \
   -e FINNHUB_API_KEY=your_key \
   -p 8080:8080 \
-  stock-news-mcp
+  stock-news-mcp-server
 ```
 
 ## Deploy to Google Cloud Run
 
 ```bash
-gcloud run deploy stock-news-mcp \
+$ gcloud run deploy stock-news-mcp-server \
   --source . \
   --region us-central1 \
   --set-env-vars ALPHAVANTAGE_API_KEY=your_key,FINNHUB_API_KEY=your_key \
